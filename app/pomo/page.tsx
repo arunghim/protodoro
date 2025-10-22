@@ -1,5 +1,9 @@
 "use client";
+
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { Task } from "../lib/types";
+import { saveToStorage, loadFromStorage } from "../lib/storage";
 
 export default function PomodoroPage() {
   const router = useRouter();
@@ -26,12 +30,6 @@ export default function PomodoroPage() {
 
   return (
     <div>
-      <div>
-        <button onClick={startTimer}>Start Timer</button>
-        <button onClick={addTime}>Add Time</button>
-        <button onClick={resetTime}>Reset Time</button>
-        <button onClick={restTime}>Rest Time</button>
-      </div>
       <div className="fixed bottom-4 right-4 flex space-x-2">
         <button onClick={navToTodo}>Todo</button>
         <button onClick={() => null}>Pomodoro</button>
