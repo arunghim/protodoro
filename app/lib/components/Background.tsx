@@ -7,20 +7,20 @@ export default function Background() {
     <div className="absolute inset-0 -z-10">
       <PixelBlast
         variant="circle"
-        pixelSize={6}
-        color="#FFFFFF"
-        patternScale={3}
-        patternDensity={1.2}
+        pixelSize={1.5}
+        color="##D3D3D3"
+        patternScale={5}
+        patternDensity={0.5}
         pixelSizeJitter={0.5}
         enableRipples
-        rippleSpeed={0.4}
-        rippleThickness={0.12}
-        rippleIntensityScale={1.5}
+        rippleSpeed={0.15}
+        rippleThickness={1.5}
+        rippleIntensityScale={2.5}
         liquid
-        liquidStrength={0.12}
-        liquidRadius={1.2}
+        liquidStrength={1.25}
+        liquidRadius={1.25}
         liquidWobbleSpeed={5}
-        speed={0.6}
+        speed={0.5}
         edgeFade={0.25}
         transparent
         style={{ width: "100%", height: "100%" }}

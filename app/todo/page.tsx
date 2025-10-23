@@ -39,7 +39,7 @@ export default function TodoPage() {
     setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
-  const navToPomo = () => router.push("/pomo");
+  const navToPomo = () => router.push("/");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") addTask(newTaskTitle);
@@ -94,15 +94,15 @@ export default function TodoPage() {
       <div className="fixed bottom-4 right-4 flex gap-2">
         <button
           className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded ${uppercaseBold}`}
-          onClick={() => console.log("Todo clicked")}
-        >
-          Todo
-        </button>
-        <button
-          className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded ${uppercaseBold}`}
           onClick={navToPomo}
         >
           Pomodoro
+        </button>
+        <button
+          className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded ${uppercaseBold}`}
+          onClick={() => console.log("Todo clicked")}
+        >
+          Todo
         </button>
       </div>
 
