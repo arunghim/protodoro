@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  FaPlay,
-  FaPause,
-  FaRedo,
-  FaArrowUp,
-  FaArrowDown,
-} from "react-icons/fa";
+import Background from "../lib/components/Background";
+import { FaPlay, FaPause, FaRedo, FaCog } from "react-icons/fa";
+import SettingsOverlay from "../lib/components/SettingsOverlay";
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60)
@@ -18,165 +14,206 @@ const formatTime = (seconds: number) => {
   return `${m}:${s}`;
 };
 
-const getStoredValue = (key: string, fallback: number) => {
-  if (typeof window === "undefined") return fallback;
-  const val = localStorage.getItem(key);
-  return val ? parseInt(val) : fallback;
-};
-
 export default function PomodoroPage() {
   const router = useRouter();
 
-  const [workDuration, setWorkDuration] = useState(() =>
-    getStoredValue("workDuration", 25 * 60)
-  );
-  const [breakDuration, setBreakDuration] = useState(() =>
-    getStoredValue("breakDuration", 10 * 60)
-  );
-  const [onBreak, setOnBreak] = useState(() =>
-    JSON.parse(localStorage.getItem("onBreak") || "false")
-  );
-  const [timeLeft, setTimeLeft] = useState(() =>
-    getStoredValue("timeLeft", 25 * 60)
-  );
+  const [workDuration, setWorkDuration] = useState(25 * 60);
+  const [breakDuration, setBreakDuration] = useState(5 * 60);
+  const [onBreak, setOnBreak] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const storedWork = parseInt(localStorage.getItem("workDuration") || "1500");
+    const storedBreak = parseInt(
+      localStorage.getItem("breakDuration") || "300"
+    );
+    const storedOnBreak = JSON.parse(
+      localStorage.getItem("onBreak") || "false"
+    );
+    const storedIsRunning = JSON.parse(
+      localStorage.getItem("isRunning") || "false"
+    );
+    const storedTimeLeft = parseInt(localStorage.getItem("timeLeft") || "1500");
+    const lastTimestamp = parseInt(
+      localStorage.getItem("lastTimestamp") || Date.now().toString()
+    );
+
+    let elapsed = 0;
+    if (storedIsRunning) {
+      elapsed = Math.floor((Date.now() - lastTimestamp) / 1000);
+    }
+
+    let updatedTimeLeft = storedTimeLeft - elapsed;
+    let updatedOnBreak = storedOnBreak;
+
+    if (updatedTimeLeft <= 0) {
+      if (storedOnBreak) {
+        updatedOnBreak = false;
+        updatedTimeLeft = storedWork - Math.abs(updatedTimeLeft);
+      } else {
+        updatedOnBreak = true;
+        updatedTimeLeft = storedBreak - Math.abs(updatedTimeLeft);
+      }
+    }
+
+    setWorkDuration(storedWork);
+    setBreakDuration(storedBreak);
+    setOnBreak(updatedOnBreak);
+    setTimeLeft(updatedTimeLeft);
+    setIsRunning(storedIsRunning);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
     localStorage.setItem("workDuration", workDuration.toString());
     localStorage.setItem("breakDuration", breakDuration.toString());
     localStorage.setItem("onBreak", JSON.stringify(onBreak));
     localStorage.setItem("timeLeft", timeLeft.toString());
-  }, [workDuration, breakDuration, onBreak, timeLeft]);
+    localStorage.setItem("isRunning", JSON.stringify(isRunning));
+    if (isRunning) localStorage.setItem("lastTimestamp", Date.now().toString());
+  }, [workDuration, breakDuration, onBreak, timeLeft, isRunning]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isRunning && timeLeft > 0) {
-      timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-    } else if (isRunning && timeLeft === 0) {
-      if (onBreak) {
-        setTimeLeft(workDuration);
-        setOnBreak(false);
-      } else {
-        setTimeLeft(breakDuration);
-        setOnBreak(true);
-      }
-    }
-    return () => clearInterval(timer);
-  }, [isRunning, timeLeft, onBreak, workDuration, breakDuration]);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!isRunning) return;
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (onBreak) {
+            setOnBreak(false);
+            return workDuration;
+          } else {
+            setOnBreak(true);
+            return breakDuration;
+          }
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isRunning, onBreak, workDuration, breakDuration]);
 
   const toggleTimer = () => setIsRunning((prev) => !prev);
-
   const resetTimer = () => {
     setIsRunning(false);
     setTimeLeft(onBreak ? breakDuration : workDuration);
   };
 
   const switchToPomodoro = () => {
-    setOnBreak(false);
-    setIsRunning(false);
-    setTimeLeft(workDuration);
+    if (onBreak) {
+      setOnBreak(false);
+      setTimeLeft(workDuration);
+    }
   };
 
   const switchToBreak = () => {
-    setOnBreak(true);
-    setIsRunning(false);
-    setTimeLeft(breakDuration);
+    if (!onBreak) {
+      setOnBreak(true);
+      setTimeLeft(breakDuration);
+    }
   };
 
   const navToTodo = () => router.push("/todo");
 
-  const increaseTime = () => {
-    if (onBreak) {
-      setBreakDuration((prev) => prev + 60);
-      setTimeLeft((prev) => (onBreak ? prev + 60 : prev));
-    } else {
-      setWorkDuration((prev) => prev + 60);
-      setTimeLeft((prev) => (!onBreak ? prev + 60 : prev));
-    }
-  };
+  const uppercaseBold = "uppercase font-bold";
 
-  const decreaseTime = () => {
-    if (onBreak) {
-      setBreakDuration((prev) => Math.max(prev - 60, 60));
-      setTimeLeft((prev) => (onBreak ? Math.max(prev - 60, 60) : prev));
-    } else {
-      setWorkDuration((prev) => Math.max(prev - 60, 60));
-      setTimeLeft((prev) => (!onBreak ? Math.max(prev - 60, 60) : prev));
-    }
-  };
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black relative px-4">
-      <div className="w-[80%] max-w-2xl flex mb-10 gap-2 justify-center">
-        <button
-          onClick={switchToPomodoro}
-          className={`w-[28%] py-3 border border-black rounded ${
-            !onBreak
-              ? "bg-transparent text-black"
-              : "bg-transparent text-black hover:bg-black hover:text-white"
-          }`}
-        >
-          Pomodoro
-        </button>
-
-        <button
-          onClick={switchToBreak}
-          className={`w-[28%] py-3 border border-black rounded ${
-            onBreak
-              ? "bg-transparent text-black"
-              : "bg-transparent text-black hover:bg-black hover:text-white"
-          }`}
-        >
-          Break
-        </button>
-
-        <div className="w-[28%] flex gap-2">
+    <div className="min-h-screen w-full relative">
+      <Background />
+      <div className="min-h-screen flex flex-col items-center justify-center text-white relative px-4">
+        <div className="absolute top-4 right-4">
           <button
-            onClick={toggleTimer}
-            className="flex-1 py-3 border border-black bg-transparent text-black hover:bg-black hover:text-white flex items-center justify-center rounded"
+            onClick={() => setShowSettings((prev) => !prev)}
+            className="p-3"
           >
-            {isRunning ? <FaPause /> : <FaPlay />}
-          </button>
-
-          <button
-            onClick={resetTimer}
-            className="flex-1 py-3 border border-black bg-transparent text-black hover:bg-black hover:text-white flex items-center justify-center rounded"
-          >
-            <FaRedo />
+            <FaCog size={20} className="text-white" />
           </button>
         </div>
-      </div>
 
-      <div className="flex flex-col items-center">
-        <h2 className="text-[12rem] font-bold mb-6 leading-none">
-          {formatTime(timeLeft)}
-        </h2>
-
-        <div className="flex justify-end w-full max-w-md gap-3">
+        <div
+          className={`w-[80%] max-w-2xl flex mb-10 gap-2 justify-center ${uppercaseBold}`}
+        >
           <button
-            onClick={increaseTime}
-            className="border border-black bg-transparent text-black hover:bg-black hover:text-white p-3 rounded"
+            onClick={switchToPomodoro}
+            className={`w-[28%] py-3 border border-white rounded ${
+              !onBreak
+                ? "bg-transparent text-white"
+                : "bg-transparent text-white hover:bg-white hover:text-black"
+            }`}
           >
-            <FaArrowUp />
+            Pomodoro
+          </button>
+
+          <button
+            onClick={switchToBreak}
+            className={`w-[28%] py-3 border border-white rounded ${
+              onBreak
+                ? "bg-transparent text-white"
+                : "bg-transparent text-white hover:bg-white hover:text-black"
+            }`}
+          >
+            Break
+          </button>
+
+          <div className="w-[28%] flex gap-2">
+            <button
+              onClick={toggleTimer}
+              className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded"
+            >
+              {isRunning ? <FaPause /> : <FaPlay />}
+            </button>
+
+            <button
+              onClick={resetTimer}
+              className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded"
+            >
+              <FaRedo />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center">
+          <h2
+            className={`text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
+          >
+            {formatTime(timeLeft)}
+          </h2>
+        </div>
+
+        <div className="fixed bottom-4 right-4 flex gap-2">
+          <button
+            onClick={navToTodo}
+            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black w-28 rounded ${uppercaseBold}`}
+          >
+            Todo
           </button>
           <button
-            onClick={decreaseTime}
-            className="border border-black bg-transparent text-black hover:bg-black hover:text-white p-3 rounded"
+            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black w-28 rounded ${uppercaseBold}`}
           >
-            <FaArrowDown />
+            Pomodoro
           </button>
         </div>
-      </div>
 
-      <div className="fixed bottom-4 right-4 flex gap-2">
-        <button
-          onClick={navToTodo}
-          className="px-4 py-2 border border-black bg-transparent text-black hover:bg-black hover:text-white w-28 rounded"
-        >
-          Todo
-        </button>
-        <button className="px-4 py-2 border border-black bg-transparent text-black hover:bg-black hover:text-white w-28 rounded">
-          Pomodoro
-        </button>
+        <SettingsOverlay
+          show={showSettings}
+          workDuration={workDuration}
+          breakDuration={breakDuration}
+          onBreak={onBreak}
+          setWorkDuration={setWorkDuration}
+          setBreakDuration={setBreakDuration}
+          setTimeLeft={setTimeLeft}
+        />
       </div>
     </div>
   );
