@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { Task } from "../lib/types";
 import { saveToStorage, loadFromStorage } from "../lib/storage";
 import { v4 as uuidv4 } from "uuid";
+import { usePomodoroStore } from "../lib/store/usePomodoroStore";
+import { FaPlay, FaPause, FaRedo } from "react-icons/fa";
 
 export default function TodoPage() {
   const router = useRouter();
@@ -13,6 +15,9 @@ export default function TodoPage() {
   const [tasks, setTasks] = useState<Task[]>(
     () => loadFromStorage<Task[]>("tasks") || []
   );
+
+  const { timeLeft, onBreak, isRunning, toggleRunning, switchMode, reset } =
+    usePomodoroStore();
 
   useEffect(() => {
     saveToStorage("tasks", tasks);
@@ -41,6 +46,14 @@ export default function TodoPage() {
   };
 
   const uppercaseBold = "uppercase font-bold";
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60)
+      .toString()
+      .padStart(2, "0");
+    const sec = (s % 60).toString().padStart(2, "0");
+    return `${m}:${sec}`;
+  };
 
   return (
     <div className="min-h-screen w-full relative flex flex-col items-center justify-center">
@@ -91,6 +104,24 @@ export default function TodoPage() {
         >
           Pomodoro
         </button>
+      </div>
+
+      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 bg-black/60 border border-white text-white rounded-full px-6 py-2 flex items-center gap-3 backdrop-blur-md">
+        <span
+          className={`${uppercaseBold} cursor-pointer`}
+          onClick={switchMode}
+        >
+          {onBreak ? "Break" : "Focus"}
+        </span>
+        <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleRunning}>
+            {isRunning ? <FaPause /> : <FaPlay />}
+          </button>
+          <button onClick={reset}>
+            <FaRedo />
+          </button>
+        </div>
       </div>
 
       <style jsx>{`

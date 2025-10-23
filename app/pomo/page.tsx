@@ -16,19 +16,16 @@ const formatTime = (seconds: number) => {
 
 export default function PomodoroPage() {
   const router = useRouter();
-
   const [workDuration, setWorkDuration] = useState(25 * 60);
   const [breakDuration, setBreakDuration] = useState(5 * 60);
   const [onBreak, setOnBreak] = useState(false);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const storedWork = parseInt(localStorage.getItem("workDuration") || "1500");
     const storedBreak = parseInt(
       localStorage.getItem("breakDuration") || "300"
@@ -36,42 +33,38 @@ export default function PomodoroPage() {
     const storedOnBreak = JSON.parse(
       localStorage.getItem("onBreak") || "false"
     );
+    const storedTimeLeft = parseInt(
+      localStorage.getItem("timeLeft") || storedWork.toString()
+    );
     const storedIsRunning = JSON.parse(
       localStorage.getItem("isRunning") || "false"
     );
-    const storedTimeLeft = parseInt(localStorage.getItem("timeLeft") || "1500");
     const lastTimestamp = parseInt(
       localStorage.getItem("lastTimestamp") || Date.now().toString()
     );
-
-    let elapsed = 0;
-    if (storedIsRunning) {
-      elapsed = Math.floor((Date.now() - lastTimestamp) / 1000);
-    }
-
-    let updatedTimeLeft = storedTimeLeft - elapsed;
+    let updatedTimeLeft = storedTimeLeft;
     let updatedOnBreak = storedOnBreak;
-
-    if (updatedTimeLeft <= 0) {
-      if (storedOnBreak) {
-        updatedOnBreak = false;
-        updatedTimeLeft = storedWork - Math.abs(updatedTimeLeft);
-      } else {
-        updatedOnBreak = true;
-        updatedTimeLeft = storedBreak - Math.abs(updatedTimeLeft);
+    if (storedIsRunning) {
+      const elapsed = Math.floor((Date.now() - lastTimestamp) / 1000);
+      updatedTimeLeft -= elapsed;
+      if (updatedTimeLeft <= 0) {
+        if (storedOnBreak) {
+          updatedOnBreak = false;
+          updatedTimeLeft = storedWork - Math.abs(updatedTimeLeft);
+        } else {
+          updatedOnBreak = true;
+          updatedTimeLeft = storedBreak - Math.abs(updatedTimeLeft);
+        }
       }
     }
-
     setWorkDuration(storedWork);
     setBreakDuration(storedBreak);
     setOnBreak(updatedOnBreak);
-    setTimeLeft(updatedTimeLeft);
+    setTimeLeft(updatedTimeLeft > 0 ? updatedTimeLeft : updatedTimeLeft * -1);
     setIsRunning(storedIsRunning);
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     localStorage.setItem("workDuration", workDuration.toString());
     localStorage.setItem("breakDuration", breakDuration.toString());
     localStorage.setItem("onBreak", JSON.stringify(onBreak));
@@ -83,7 +76,6 @@ export default function PomodoroPage() {
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     if (!isRunning) return;
-
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -98,7 +90,6 @@ export default function PomodoroPage() {
         return prev - 1;
       });
     }, 1000);
-
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -109,23 +100,19 @@ export default function PomodoroPage() {
     setIsRunning(false);
     setTimeLeft(onBreak ? breakDuration : workDuration);
   };
-
   const switchToPomodoro = () => {
     if (onBreak) {
       setOnBreak(false);
       setTimeLeft(workDuration);
     }
   };
-
   const switchToBreak = () => {
     if (!onBreak) {
       setOnBreak(true);
       setTimeLeft(breakDuration);
     }
   };
-
   const navToTodo = () => router.push("/todo");
-
   const uppercaseBold = "uppercase font-bold";
 
   return (
@@ -140,7 +127,6 @@ export default function PomodoroPage() {
             <FaCog size={20} className="text-white" />
           </button>
         </div>
-
         <div
           className={`w-[80%] max-w-2xl flex mb-10 gap-2 justify-center ${uppercaseBold}`}
         >
@@ -154,7 +140,6 @@ export default function PomodoroPage() {
           >
             Pomodoro
           </button>
-
           <button
             onClick={switchToBreak}
             className={`w-[28%] py-3 border border-white rounded ${
@@ -165,7 +150,6 @@ export default function PomodoroPage() {
           >
             Break
           </button>
-
           <div className="w-[28%] flex gap-2">
             <button
               onClick={toggleTimer}
@@ -173,7 +157,6 @@ export default function PomodoroPage() {
             >
               {isRunning ? <FaPause /> : <FaPlay />}
             </button>
-
             <button
               onClick={resetTimer}
               className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded"
@@ -182,7 +165,6 @@ export default function PomodoroPage() {
             </button>
           </div>
         </div>
-
         <div className="flex flex-col items-center">
           <h2
             className={`text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
@@ -194,12 +176,12 @@ export default function PomodoroPage() {
         <div className="fixed bottom-4 right-4 flex gap-2">
           <button
             onClick={navToTodo}
-            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black w-28 rounded ${uppercaseBold}`}
+            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded ${uppercaseBold}`}
           >
             Todo
           </button>
           <button
-            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black w-28 rounded ${uppercaseBold}`}
+            className={`px-4 py-2 border border-white bg-white text-black rounded ${uppercaseBold}`}
           >
             Pomodoro
           </button>

@@ -1,5 +1,4 @@
 "use client";
-
 import { Dispatch, SetStateAction, useState } from "react";
 
 interface SettingsOverlayProps {
@@ -22,21 +21,28 @@ export default function SettingsOverlay({
   setTimeLeft,
 }: SettingsOverlayProps) {
   const [activeTab, setActiveTab] = useState("timer");
-
   if (!show) return null;
 
   const formatMinutes = (seconds: number) => Math.floor(seconds / 60);
 
   const handleWorkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = Math.max(60, parseInt(e.target.value) * 60);
-    setWorkDuration(newVal);
-    if (!onBreak) setTimeLeft(newVal);
+    const val = Math.max(1, parseInt(e.target.value) || 1) * 60;
+    setWorkDuration(val);
+    localStorage.setItem("workDuration", val.toString());
+    if (!onBreak) {
+      setTimeLeft(val);
+      localStorage.setItem("timeLeft", val.toString());
+    }
   };
 
   const handleBreakChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = Math.max(60, parseInt(e.target.value) * 60);
-    setBreakDuration(newVal);
-    if (onBreak) setTimeLeft(newVal);
+    const val = Math.max(1, parseInt(e.target.value) || 1) * 60;
+    setBreakDuration(val);
+    localStorage.setItem("breakDuration", val.toString());
+    if (onBreak) {
+      setTimeLeft(val);
+      localStorage.setItem("timeLeft", val.toString());
+    }
   };
 
   const tabs = ["timer", "sound", "theme"];
@@ -58,43 +64,38 @@ export default function SettingsOverlay({
           </button>
         ))}
       </div>
-
       <div className="flex-1 p-4 bg-transparent rounded flex flex-col gap-4">
         {activeTab === "timer" && (
-          <div className="flex flex-col gap-4">
+          <>
             <div className="flex flex-col">
               <label className="text-sm mb-1 text-white font-bold">
-                pomodoro
+                Pomodoro
               </label>
               <input
                 type="number"
-                value={formatMinutes(workDuration)}
+                value={formatMinutes(workDuration) || 25}
                 onChange={handleWorkChange}
                 className="w-full text-white rounded px-3 py-2 bg-transparent border border-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 min={1}
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm mb-1 text-white font-bold">break</label>
+              <label className="text-sm mb-1 text-white font-bold">Break</label>
               <input
                 type="number"
-                value={formatMinutes(breakDuration)}
+                value={formatMinutes(breakDuration) || 5}
                 onChange={handleBreakChange}
                 className="w-full text-white rounded px-3 py-2 bg-transparent border border-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
                 min={1}
               />
             </div>
-          </div>
+          </>
         )}
         {activeTab === "sound" && (
-          <div className="text-sm text-white opacity-80">
-            sound settings will go here
-          </div>
+          <div className="text-sm text-white opacity-80">Sound settings</div>
         )}
         {activeTab === "theme" && (
-          <div className="text-sm text-white opacity-80">
-            theme settings will go here
-          </div>
+          <div className="text-sm text-white opacity-80">Theme settings</div>
         )}
       </div>
     </div>
