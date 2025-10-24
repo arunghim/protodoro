@@ -97,7 +97,7 @@ export default function TodoPage() {
           {tasks.map(({ id, title }) => (
             <div
               key={id}
-              className="flex items-center gap-3 p-4 border border-white/30 rounded-xl bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors duration-200"
+              className="flex items-center gap-3 p-4 border border-white/30 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors duration-200"
             >
               <input
                 type="checkbox"
@@ -114,19 +114,19 @@ export default function TodoPage() {
 
       <div className="fixed bottom-4 right-4 flex gap-2">
         <button
-          className={`px-4 py-2 border border-white bg-white text-black rounded-xl ${uppercaseBold}`}
+          className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold}`}
           onClick={navToPomo}
         >
           Pomodoro
         </button>
         <button
-          className={`px-4 py-2 border border-white/80 bg-transparent text-white hover:bg-white hover:text-black rounded-xl ${uppercaseBold}`}
+          className={`px-4 py-2 border border-white/80 bg-white text-black rounded-full ${uppercaseBold}`}
         >
           Todo
         </button>
       </div>
 
-      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 bg-black/70 border border-white/30 text-white rounded-2xl px-6 py-3 flex items-center gap-4 backdrop-blur-md shadow-lg">
+      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 bg-black/70 border border-white/30 text-white rounded-full px-6 py-3 flex items-center gap-4 backdrop-blur-md shadow-lg">
         <span
           className={`${uppercaseBold} cursor-pointer select-none`}
           onClick={switchMode}
@@ -137,13 +137,13 @@ export default function TodoPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={toggleRunning}
-            className="p-2 border border-white/40 rounded-lg hover:bg-white hover:text-black transition-colors"
+            className="p-2 border border-white/40 rounded-full hover:bg-white hover:text-black transition-colors"
           >
             {isRunning ? <FaPause size={14} /> : <FaPlay size={14} />}
           </button>
           <button
             onClick={reset}
-            className="p-2 border border-white/40 rounded-lg hover:bg-white hover:text-black transition-colors"
+            className="p-2 border border-white/40 rounded-full hover:bg-white hover:text-black transition-colors"
           >
             <FaRedo size={14} />
           </button>

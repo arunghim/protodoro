@@ -53,13 +53,13 @@ export default function PomodoroPage() {
 
       <div className="min-h-screen flex flex-col items-center justify-center text-white relative px-4">
         <div
-          className={`w-[80%] max-w-2xl flex mb-10 gap-2 justify-center ${uppercaseBold}`}
+          className={`w-full sm:w-[80%] max-w-2xl flex flex-col sm:flex-row mb-10 gap-2 justify-center ${uppercaseBold}`}
         >
           <button
             onClick={() => {
               if (onBreak) switchMode();
             }}
-            className={`w-[28%] py-3 border border-white rounded-full ${
+            className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
               !onBreak
                 ? "bg-white text-black"
                 : "bg-transparent text-white hover:bg-white hover:text-black"
@@ -72,7 +72,7 @@ export default function PomodoroPage() {
             onClick={() => {
               if (!onBreak) switchMode();
             }}
-            className={`w-[28%] py-3 border border-white rounded-full ${
+            className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
               onBreak
                 ? "bg-white text-black"
                 : "bg-transparent text-white hover:bg-white hover:text-black"
@@ -81,7 +81,7 @@ export default function PomodoroPage() {
             Break
           </button>
 
-          <div className="w-[28%] flex gap-2">
+          <div className="w-full sm:w-[28%] flex gap-2 mt-2 sm:mt-0">
             <button
               onClick={toggleRunning}
               className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors"
@@ -99,13 +99,13 @@ export default function PomodoroPage() {
 
         <div className="flex flex-col items-center">
           <h2
-            className={`text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
+            className={`text-[6rem] sm:text-[10rem] md:text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
           >
             {formatTime(timeLeft)}
           </h2>
         </div>
 
-        <div className="fixed bottom-4 right-4 flex gap-2">
+        <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2">
           <button
             className={`px-4 py-2 border border-white bg-white text-black rounded-full ${uppercaseBold}`}
           >
