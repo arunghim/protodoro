@@ -39,7 +39,6 @@ export const usePomodoroStore = create<PomodoroState>()(
         set({
           onBreak: next,
           timeLeft: next ? breakDuration : workDuration,
-          isRunning: false,
         });
       },
       reset: () => {
@@ -50,11 +49,16 @@ export const usePomodoroStore = create<PomodoroState>()(
         });
       },
       tick: () => {
-        const { timeLeft, switchMode } = get();
-        if (timeLeft > 0) {
-          set({ timeLeft: timeLeft - 1 });
+        const state = get();
+        if (!state.isRunning) return;
+        if (state.timeLeft > 0) {
+          set({ timeLeft: state.timeLeft - 1 });
         } else {
-          switchMode();
+          const nextBreak = !state.onBreak;
+          set({
+            onBreak: nextBreak,
+            timeLeft: nextBreak ? state.breakDuration : state.workDuration,
+          });
         }
       },
       loadFromStorage: () => {

@@ -1,3 +1,4 @@
+// PomodoroPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -32,8 +33,7 @@ export default function PomodoroPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const { isRunning } = usePomodoroStore.getState();
-      if (isRunning) tick();
+      tick();
     }, 1000);
     return () => clearInterval(interval);
   }, [tick]);
@@ -45,7 +45,7 @@ export default function PomodoroPage() {
       <div className="absolute top-4 right-4 z-50">
         <button
           onClick={() => setShowSettings((prev) => !prev)}
-          className="p-3 border border-white rounded-full bg-black/40 hover:bg-white hover:text-black transition-colors"
+          className="p-2 border border-white rounded-full bg-black/40 hover:bg-white hover:text-black transition-colors"
         >
           <FaCog size={20} className="text-white" />
         </button>
@@ -60,12 +60,10 @@ export default function PomodoroPage() {
               if (onBreak) switchMode();
             }}
             className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
-              !onBreak
-                ? "bg-white text-black"
-                : "bg-transparent text-white hover:bg-white hover:text-black"
-            } transition-colors`}
+              !onBreak ? "bg-white text-black" : "bg-transparent text-white"
+            } ${uppercaseBold} transition-colors`}
           >
-            Pomodoro
+            FOCUS
           </button>
 
           <button
@@ -73,12 +71,10 @@ export default function PomodoroPage() {
               if (!onBreak) switchMode();
             }}
             className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
-              onBreak
-                ? "bg-white text-black"
-                : "bg-transparent text-white hover:bg-white hover:text-black"
-            } transition-colors`}
+              onBreak ? "bg-white text-black" : "bg-transparent text-white"
+            } ${uppercaseBold} transition-colors`}
           >
-            Break
+            BREAK
           </button>
 
           <div className="w-full sm:w-[28%] flex gap-2 mt-2 sm:mt-0">
