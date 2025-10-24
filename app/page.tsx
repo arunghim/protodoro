@@ -1,4 +1,3 @@
-// PomodoroPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -45,23 +44,27 @@ export default function PomodoroPage() {
       <div className="absolute top-4 right-4 z-50">
         <button
           onClick={() => setShowSettings((prev) => !prev)}
-          className="p-2 border border-white rounded-full bg-black/40 hover:bg-white hover:text-black transition-colors"
+          className="p-3 border border-white/50 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-white hover:text-black transition-colors shadow-lg"
+          aria-label="Open Settings"
         >
-          <FaCog size={20} className="text-white" />
+          <FaCog size={20} />
         </button>
       </div>
 
-      <div className="min-h-screen flex flex-col items-center justify-center text-white relative px-4">
+      {/* Font change applied here: font-mono is added to the main content container */}
+      <div className="min-h-screen flex flex-col items-center justify-center text-white relative px-4 font-mono">
         <div
-          className={`w-full sm:w-[80%] max-w-2xl flex flex-col sm:flex-row mb-10 gap-2 justify-center ${uppercaseBold}`}
+          className={`w-full sm:w-[80%] max-w-2xl flex flex-col sm:flex-row mb-10 gap-4 justify-center ${uppercaseBold}`}
         >
           <button
             onClick={() => {
               if (onBreak) switchMode();
             }}
-            className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
-              !onBreak ? "bg-white text-black" : "bg-transparent text-white"
-            } ${uppercaseBold} transition-colors`}
+            className={`w-full sm:w-[28%] py-3 border rounded-full transition-all duration-300 ${
+              !onBreak
+                ? "bg-white text-black border-white shadow-xl"
+                : "bg-black/40 text-white border-white/50 hover:bg-white/10"
+            } ${uppercaseBold}`}
           >
             FOCUS
           </button>
@@ -70,23 +73,27 @@ export default function PomodoroPage() {
             onClick={() => {
               if (!onBreak) switchMode();
             }}
-            className={`w-full sm:w-[28%] py-3 border border-white rounded-full ${
-              onBreak ? "bg-white text-black" : "bg-transparent text-white"
-            } ${uppercaseBold} transition-colors`}
+            className={`w-full sm:w-[28%] py-3 border rounded-full transition-all duration-300 ${
+              onBreak
+                ? "bg-white text-black border-white shadow-xl"
+                : "bg-black/40 text-white border-white/50 hover:bg-white/10"
+            } ${uppercaseBold}`}
           >
             BREAK
           </button>
 
-          <div className="w-full sm:w-[28%] flex gap-2 mt-2 sm:mt-0">
+          <div className="w-full sm:w-[28%] flex gap-4 mt-2 sm:mt-0">
             <button
               onClick={toggleRunning}
-              className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors"
+              className="flex-1 py-3 border border-white/50 bg-black/40 text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors backdrop-blur-md shadow-md"
+              aria-label={isRunning ? "Pause Timer" : "Start Timer"}
             >
               {isRunning ? <FaPause /> : <FaPlay />}
             </button>
             <button
               onClick={reset}
-              className="flex-1 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors"
+              className="flex-1 py-3 border border-white/50 bg-black/40 text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors backdrop-blur-md shadow-md"
+              aria-label="Reset Timer"
             >
               <FaRedo />
             </button>
@@ -101,17 +108,17 @@ export default function PomodoroPage() {
           </h2>
         </div>
 
-        <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2">
+        <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-30">
           <button
-            className={`px-4 py-2 border border-white bg-white text-black rounded-full ${uppercaseBold}`}
+            className={`px-6 py-3 border border-white/80 bg-white text-black rounded-full ${uppercaseBold} transition-colors`}
           >
-            Pomodoro
+            POMODORO
           </button>
           <button
             onClick={() => router.push("/todo")}
-            className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold}`}
+            className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
           >
-            Todo
+            TODO
           </button>
         </div>
 

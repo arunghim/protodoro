@@ -2,12 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import Background from "../lib/components/Background";
+import PomodoroOverlay from "../lib/components/PomodoroOverlay";
 import { useState, useEffect } from "react";
 import { Task } from "../lib/types";
 import { saveToStorage, loadFromStorage } from "../lib/storage";
 import { v4 as uuidv4 } from "uuid";
 import { usePomodoroStore } from "../lib/store/usePomodoroStore";
-import { FaPlay, FaPause, FaRedo } from "react-icons/fa";
 
 export default function TodoPage() {
   const router = useRouter();
@@ -16,15 +16,7 @@ export default function TodoPage() {
     () => loadFromStorage<Task[]>("tasks") || []
   );
 
-  const {
-    timeLeft,
-    onBreak,
-    isRunning,
-    toggleRunning,
-    switchMode,
-    reset,
-    loadFromStorage: loadPomodoroFromStorage,
-  } = usePomodoroStore();
+  const { loadFromStorage: loadPomodoroFromStorage } = usePomodoroStore();
 
   useEffect(() => {
     loadPomodoroFromStorage();
@@ -52,12 +44,18 @@ export default function TodoPage() {
       completed: false,
       created: Date.now(),
     };
-    setTasks((prev) => [...prev, newTask]);
+    setTasks((prev) => [newTask, ...prev]);
     setNewTaskTitle("");
   };
 
   const completeTask = (id: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+    const taskElement = document.getElementById(`task-${id}`);
+    if (taskElement) {
+      taskElement.classList.add("fade-out-exit");
+      setTimeout(() => {
+        setTasks((prev) => prev.filter((task) => task.id !== id));
+      }, 300);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -65,94 +63,82 @@ export default function TodoPage() {
   };
 
   const navToPomo = () => router.push("/");
-
   const uppercaseBold = "uppercase font-bold";
-
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60)
-      .toString()
-      .padStart(2, "0");
-    const sec = (s % 60).toString().padStart(2, "0");
-    return `${m}:${sec}`;
-  };
 
   return (
     <div className="min-h-screen w-full relative flex flex-col items-center justify-center">
       <Background />
 
-      <div className="flex flex-col items-center absolute-center w-full max-w-xl px-4">
+      <div className="flex flex-col items-center absolute-center w-full max-w-xl px-4 z-20 font-mono">
         <input
           type="text"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="enter task"
-          className="w-full p-3 border-b-2 border-white/80 rounded-none uppercase font-bold bg-transparent text-white placeholder:text-gray-400 focus:outline-none focus:ring-0"
+          placeholder="ENTER NEW TASK"
+          className="w-full p-4 text-xl border-b-2 border-white/50 uppercase font-extrabold bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:border-white transition-all duration-300"
         />
 
-        <div
-          className="mt-6 w-full max-w-xl h-[500px] overflow-y-scroll space-y-3"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {tasks.map(({ id, title }) => (
-            <div
-              key={id}
-              className="flex items-center gap-3 p-4 border border-white/30 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 transition-colors duration-200"
-            >
-              <input
-                type="checkbox"
-                onChange={() => completeTask(id)}
-                className="w-6 h-6 accent-sky-400 cursor-pointer"
-              />
-              <span className={`${uppercaseBold} text-white tracking-wide`}>
-                {title}
-              </span>
-            </div>
-          ))}
+        <div className="mt-8 w-full max-w-xl h-[500px] relative">
+          <div
+            className="w-full h-full overflow-y-scroll space-y-4 pt-2 pb-2 mask-scroll-fade"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {tasks.map(({ id, title }) => (
+              <div
+                key={id}
+                id={`task-${id}`}
+                className="task-item flex items-center gap-4 p-4 border border-white/20 rounded-xl bg-black/40 backdrop-blur-md shadow-md hover:bg-black/60 transition-all duration-300"
+              >
+                <input
+                  type="checkbox"
+                  onChange={() => completeTask(id)}
+                  className="w-6 h-6 border-2 border-white/50 rounded-md bg-transparent checked:bg-white checked:border-white transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:text-black checked:after:flex checked:after:items-center checked:after:justify-center"
+                />
+                <span
+                  className={`${uppercaseBold} text-white tracking-wider text-lg`}
+                >
+                  {title}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 flex gap-2">
+      <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-30 font-mono">
         <button
-          className={`px-4 py-2 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold}`}
+          className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
           onClick={navToPomo}
         >
-          Pomodoro
+          POMODORO
         </button>
+
         <button
-          className={`px-4 py-2 border border-white/80 bg-white text-black rounded-full ${uppercaseBold}`}
+          className={`px-6 py-3 border border-white/80 bg-white text-black rounded-full ${uppercaseBold} transition-colors shadow-xl`}
         >
-          Todo
+          TODO
         </button>
       </div>
 
-      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 bg-black/70 border border-white/30 text-white rounded-full px-6 py-3 flex items-center gap-4 backdrop-blur-md shadow-lg">
-        <span
-          className={`${uppercaseBold} cursor-pointer select-none`}
-          onClick={switchMode}
-        >
-          {onBreak ? "Break" : "Focus"}
-        </span>
-        <span className="font-mono text-lg">{formatTime(timeLeft)}</span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleRunning}
-            className="p-2 border border-white/40 rounded-full hover:bg-white hover:text-black transition-colors"
-          >
-            {isRunning ? <FaPause size={14} /> : <FaPlay size={14} />}
-          </button>
-          <button
-            onClick={reset}
-            className="p-2 border border-white/40 rounded-full hover:bg-white hover:text-black transition-colors"
-          >
-            <FaRedo size={14} />
-          </button>
-        </div>
-      </div>
+      <PomodoroOverlay />
 
       <style jsx>{`
         div::-webkit-scrollbar {
           display: none;
+        }
+
+        .task-item {
+          transition: all 0.3s ease-in-out, margin 0.3s ease-in-out;
+        }
+        .fade-out-exit {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.95);
+          height: 0;
+          padding-top: 0;
+          padding-bottom: 0;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
         }
       `}</style>
     </div>
