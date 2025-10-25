@@ -69,17 +69,17 @@ export default function TodoPage() {
     <div className="min-h-screen w-full relative flex flex-col items-center justify-center">
       <Background />
 
-      <div className="flex flex-col items-center absolute-center w-full max-w-xl px-4 z-20 font-mono">
+      <div className="flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono pt-16 pb-40 sm:py-0">
         <input
           type="text"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ENTER NEW TASK"
-          className="w-full p-4 text-xl border-b-2 border-white/50 uppercase font-extrabold bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:border-white transition-all duration-300"
+          className="w-full p-4 text-xl sm:text-2xl border-b-2 border-white/50 uppercase font-extrabold bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:border-white transition-all duration-300"
         />
 
-        <div className="mt-8 w-full max-w-xl h-[500px] relative">
+        <div className="mt-8 w-full max-w-xl h-[60vh] sm:h-[500px] relative">
           <div
             className="w-full h-full overflow-y-scroll space-y-4 pt-2 pb-2 mask-scroll-fade"
             style={{ scrollbarWidth: "none" }}
@@ -96,7 +96,7 @@ export default function TodoPage() {
                   className="w-6 h-6 border-2 border-white/50 rounded-md bg-transparent checked:bg-white checked:border-white transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:text-black checked:after:flex checked:after:items-center checked:after:justify-center"
                 />
                 <span
-                  className={`${uppercaseBold} text-white tracking-wider text-lg`}
+                  className={`${uppercaseBold} text-white tracking-wider text-lg sm:text-xl`}
                 >
                   {title}
                 </span>
@@ -106,7 +106,7 @@ export default function TodoPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-30 font-mono">
+      <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-40 font-mono">
         <button
           className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
           onClick={navToPomo}

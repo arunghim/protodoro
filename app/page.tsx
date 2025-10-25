@@ -51,16 +51,15 @@ export default function PomodoroPage() {
         </button>
       </div>
 
-      {/* Font change applied here: font-mono is added to the main content container */}
       <div className="min-h-screen flex flex-col items-center justify-center text-white relative px-4 font-mono">
         <div
-          className={`w-full sm:w-[80%] max-w-2xl flex flex-col sm:flex-row mb-10 gap-4 justify-center ${uppercaseBold}`}
+          className={`w-full max-w-2xl flex flex-col sm:flex-row mb-10 gap-4 sm:gap-6 justify-center ${uppercaseBold}`}
         >
           <button
             onClick={() => {
               if (onBreak) switchMode();
             }}
-            className={`w-full sm:w-[28%] py-3 border rounded-full transition-all duration-300 ${
+            className={`w-full sm:w-1/4 py-3 border rounded-full transition-all duration-300 ${
               !onBreak
                 ? "bg-white text-black border-white shadow-xl"
                 : "bg-black/40 text-white border-white/50 hover:bg-white/10"
@@ -73,7 +72,7 @@ export default function PomodoroPage() {
             onClick={() => {
               if (!onBreak) switchMode();
             }}
-            className={`w-full sm:w-[28%] py-3 border rounded-full transition-all duration-300 ${
+            className={`w-full sm:w-1/4 py-3 border rounded-full transition-all duration-300 ${
               onBreak
                 ? "bg-white text-black border-white shadow-xl"
                 : "bg-black/40 text-white border-white/50 hover:bg-white/10"
@@ -82,7 +81,7 @@ export default function PomodoroPage() {
             BREAK
           </button>
 
-          <div className="w-full sm:w-[28%] flex gap-4 mt-2 sm:mt-0">
+          <div className="w-full sm:w-1/4 flex gap-4 mt-0">
             <button
               onClick={toggleRunning}
               className="flex-1 py-3 border border-white/50 bg-black/40 text-white hover:bg-white hover:text-black flex items-center justify-center rounded-full transition-colors backdrop-blur-md shadow-md"
@@ -102,7 +101,7 @@ export default function PomodoroPage() {
 
         <div className="flex flex-col items-center">
           <h2
-            className={`text-[6rem] sm:text-[10rem] md:text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
+            className={`text-7xl sm:text-[8rem] md:text-[10rem] lg:text-[12rem] font-bold mb-6 leading-none text-white ${uppercaseBold}`}
           >
             {formatTime(timeLeft)}
           </h2>
