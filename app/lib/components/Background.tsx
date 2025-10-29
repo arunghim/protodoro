@@ -19,7 +19,7 @@ export default function Background() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 w-full h-[100dvh]">
+    <div className="fixed inset-0 z-0 w-full h-[100dvh] pointer-events-auto">
       <PixelBlast
         variant="circle"
         pixelSize={1.5}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { usePomodoroStore } from "../store/usePomodoroStore";
 import { FaTimes, FaChevronUp, FaChevronDown } from "react-icons/fa";
 
@@ -24,20 +24,6 @@ export default function SettingsOverlay({
   } = usePomodoroStore();
 
   const [activeTab, setActiveTab] = useState("TIMER");
-  const overlayRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        overlayRef.current &&
-        !overlayRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-    if (show) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [show, onClose]);
 
   if (!show) return null;
 
@@ -63,19 +49,15 @@ export default function SettingsOverlay({
   };
 
   const tabs = ["TIMER", "SOUND", "THEME"];
-
   const controlButtonClass =
-    "p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors";
+    "p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors pointer-events-auto";
 
   return (
-    <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-32px)] sm:w-[500px]">
-      <div
-        ref={overlayRef}
-        className="min-h-[75vh] sm:min-h-[350px] flex flex-col sm:flex-row border border-white/30 rounded-2xl bg-black/80 backdrop-blur-xl shadow-2xl transition-all duration-300 relative font-mono overflow-hidden"
-      >
+    <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-32px)] sm:w-[500px] pointer-events-auto">
+      <div className="min-h-[75vh] sm:min-h-[350px] flex flex-col sm:flex-row border border-white/30 rounded-2xl bg-black/80 backdrop-blur-xl shadow-2xl transition-all duration-300 relative font-mono overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+          className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10 pointer-events-auto"
           aria-label="CLOSE SETTINGS"
         >
           <FaTimes size={20} />
@@ -90,8 +72,7 @@ export default function SettingsOverlay({
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                // Dynamic sizing for tabs
-                className={`flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-bold rounded-lg text-center sm:text-left transition-all duration-300 ${
+                className={`flex-shrink-0 py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-bold rounded-lg text-center sm:text-left transition-all duration-300 pointer-events-auto ${
                   activeTab === tab
                     ? "bg-white/10 text-white border border-white/30"
                     : "text-white/60 hover:text-white hover:bg-white/5"
@@ -118,7 +99,6 @@ export default function SettingsOverlay({
                     <button
                       onClick={() => handleDurationChange("work", 1)}
                       className={controlButtonClass}
-                      aria-label="INCREASE FOCUS TIME"
                     >
                       <FaChevronUp size={12} />
                     </button>
@@ -126,7 +106,6 @@ export default function SettingsOverlay({
                       onClick={() => handleDurationChange("work", -1)}
                       className={controlButtonClass}
                       disabled={workDuration <= 60}
-                      aria-label="DECREASE FOCUS TIME"
                     >
                       <FaChevronDown size={12} />
                     </button>
@@ -145,7 +124,6 @@ export default function SettingsOverlay({
                     <button
                       onClick={() => handleDurationChange("break", 1)}
                       className={controlButtonClass}
-                      aria-label="INCREASE BREAK TIME"
                     >
                       <FaChevronUp size={12} />
                     </button>
@@ -153,7 +131,6 @@ export default function SettingsOverlay({
                       onClick={() => handleDurationChange("break", -1)}
                       className={controlButtonClass}
                       disabled={breakDuration <= 60}
-                      aria-label="DECREASE BREAK TIME"
                     >
                       <FaChevronDown size={12} />
                     </button>
