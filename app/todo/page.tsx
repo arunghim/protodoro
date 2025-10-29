@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Background from "../lib/components/Background";
 import PomodoroOverlay from "../lib/components/PomodoroOverlay";
-import { useState, useEffect } from "react";
 import { Task } from "../lib/types";
 import { saveToStorage, loadFromStorage } from "../lib/storage";
-import { v4 as uuidv4 } from "uuid";
 import { usePomodoroStore } from "../lib/store/usePomodoroStore";
 
 export default function TodoPage() {
@@ -15,8 +15,9 @@ export default function TodoPage() {
   const [tasks, setTasks] = useState<Task[]>(
     () => loadFromStorage<Task[]>("tasks") || []
   );
-
   const { loadFromStorage: loadPomodoroFromStorage } = usePomodoroStore();
+
+  const uppercaseBold = "uppercase font-bold";
 
   useEffect(() => {
     loadPomodoroFromStorage();
@@ -25,9 +26,7 @@ export default function TodoPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       const { isRunning } = usePomodoroStore.getState();
-      if (isRunning) {
-        usePomodoroStore.getState().tick();
-      }
+      if (isRunning) usePomodoroStore.getState().tick();
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -52,18 +51,16 @@ export default function TodoPage() {
     const taskElement = document.getElementById(`task-${id}`);
     if (taskElement) {
       taskElement.classList.add("fade-out-exit");
-      setTimeout(() => {
-        setTasks((prev) => prev.filter((task) => task.id !== id));
-      }, 300);
+      setTimeout(
+        () => setTasks((prev) => prev.filter((task) => task.id !== id)),
+        300
+      );
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") addTask(newTaskTitle);
-  };
-
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) =>
+    e.key === "Enter" && addTask(newTaskTitle);
   const navToPomo = () => router.push("/");
-  const uppercaseBold = "uppercase font-bold";
 
   return (
     <div className="min-h-screen w-full relative flex flex-col items-center justify-center">
@@ -108,12 +105,11 @@ export default function TodoPage() {
 
       <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-40 font-mono">
         <button
-          className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
           onClick={navToPomo}
+          className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
         >
           POMODORO
         </button>
-
         <button
           className={`px-6 py-3 border border-white/80 bg-white text-black rounded-full ${uppercaseBold} transition-colors shadow-xl`}
         >
@@ -127,7 +123,6 @@ export default function TodoPage() {
         div::-webkit-scrollbar {
           display: none;
         }
-
         .task-item {
           transition: all 0.3s ease-in-out, margin 0.3s ease-in-out;
         }
