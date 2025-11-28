@@ -32,7 +32,7 @@ export default function PomodoroPage() {
   }, [tick]);
 
   return (
-    <div className="relative min-h-[100dvh] overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-black text-white">
       <Background />
 
       <div className="absolute top-4 right-4 z-50 pointer-events-auto">

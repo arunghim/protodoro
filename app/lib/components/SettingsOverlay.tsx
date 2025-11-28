@@ -54,7 +54,7 @@ export default function SettingsOverlay({
 
   return (
     <div className="absolute top-4 sm:top-16 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-32px)] sm:w-[500px] pointer-events-auto">
-      <div className="min-h-[75vh] sm:min-h-[350px] flex flex-col sm:flex-row border border-white/30 rounded-2xl bg-black/80 backdrop-blur-xl shadow-2xl transition-all duration-300 relative font-mono overflow-hidden">
+      <div className="min-h-[75vh] sm:min-h-[350px] flex flex-col sm:flex-row border border-white/30 rounded-2xl bg-black/80 text-white backdrop-blur-xl shadow-2xl transition-all duration-300 relative font-mono overflow-hidden">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10 pointer-events-auto"

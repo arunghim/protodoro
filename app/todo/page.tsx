@@ -63,7 +63,7 @@ export default function TodoPage() {
   const navToPomo = () => router.push("/");
 
   return (
-    <div className="min-h-screen w-full relative flex flex-col items-center justify-center">
+    <div className="min-h-screen w-full relative flex flex-col items-center justify-center bg-black text-white">
       <Background />
 
       <div className="flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono pt-16 pb-40 sm:py-0">
