@@ -2,10 +2,102 @@
 
 import { FaPlay, FaPause, FaRedo } from "react-icons/fa";
 import { usePomodoroStore } from "../store/usePomodoroStore";
+import { useState, useEffect, useRef } from "react";
 
 export default function PomodoroOverlay() {
-  const { timeLeft, onBreak, isRunning, toggleRunning, switchMode, reset, theme } =
-    usePomodoroStore();
+  const {
+    timeLeft,
+    onBreak,
+    isLongBreak,
+    isRunning,
+    toggleRunning,
+    switchMode,
+    switchToBreak,
+    switchToLongBreak,
+    reset,
+    theme,
+  } = usePomodoroStore();
+  const [showOverlay, setShowOverlay] = useState(true);
+  const checkCountRef = useRef(0);
+
+  useEffect(() => {
+    const checkOverlap = () => {
+      const overlay = document.querySelector("[data-pomodoro-overlay]");
+      const buttons = document.querySelector("[data-nav-buttons]");
+
+      if (!overlay || !buttons) {
+        if (checkCountRef.current < 50) {
+          checkCountRef.current += 1;
+          setTimeout(checkOverlap, 100);
+        }
+        return;
+      }
+
+      const overlayRect = overlay.getBoundingClientRect();
+      const buttonsRect = buttons.getBoundingClientRect();
+
+      const overlap = !(
+        overlayRect.right < buttonsRect.left ||
+        overlayRect.left > buttonsRect.right ||
+        overlayRect.bottom < buttonsRect.top ||
+        overlayRect.top > buttonsRect.bottom
+      );
+
+      setShowOverlay(!overlap);
+    };
+
+    const initialCheck = setTimeout(checkOverlap, 100);
+
+    const interval = setInterval(checkOverlap, 200);
+    window.addEventListener("resize", checkOverlap);
+
+    return () => {
+      clearTimeout(initialCheck);
+      clearInterval(interval);
+      window.removeEventListener("resize", checkOverlap);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!showOverlay) {
+      const timer = setTimeout(() => {
+        const checkOverlap = () => {
+          const overlay = document.querySelector("[data-pomodoro-overlay]");
+          const buttons = document.querySelector("[data-nav-buttons]");
+
+          if (!overlay || !buttons) return;
+
+          const overlayRect = overlay.getBoundingClientRect();
+          const buttonsRect = buttons.getBoundingClientRect();
+
+          const overlap = !(
+            overlayRect.right < buttonsRect.left ||
+            overlayRect.left > buttonsRect.right ||
+            overlayRect.bottom < buttonsRect.top ||
+            overlayRect.top > buttonsRect.bottom
+          );
+
+          setShowOverlay(!overlap);
+        };
+        checkOverlap();
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [showOverlay]);
+
+  const handleModeSwitch = (mode: "focus" | "break" | "longBreak") => {
+    if (isRunning) {
+      toggleRunning();
+    }
+
+    if (mode === "focus") {
+      switchMode();
+    } else if (mode === "break") {
+      switchToBreak();
+    } else if (mode === "longBreak") {
+      switchToLongBreak();
+    }
+  };
 
   if (timeLeft === undefined) return null;
 
@@ -19,31 +111,53 @@ export default function PomodoroOverlay() {
 
   const uppercaseBold = "uppercase font-bold";
 
-  const labelText = onBreak ? "BREAK" : "FOCUS";
+  const getCurrentMode = () => {
+    if (!onBreak) return "FOCUS";
+    return isLongBreak ? "LONG BREAK" : "BREAK";
+  };
 
   const isLight = theme === "light";
   const bgColor = isLight ? "bg-white/80" : "bg-black/80";
   const textColor = isLight ? "text-black" : "text-white";
   const borderColor = isLight ? "border-black/50" : "border-white/50";
   const hoverBg = isLight ? "hover:bg-black/10" : "hover:bg-white/10";
-  const activeButtonBg = isLight ? "bg-black text-white" : "bg-white text-black";
+  const activeButtonBg = isLight
+    ? "bg-black text-white"
+    : "bg-white text-black";
   const buttonBg = isLight ? "bg-white/40" : "bg-black/40";
 
-  const modeButtonClass = `cursor-pointer select-none px-4 py-1.5 ${textColor} ${hoverBg} rounded-full transition-colors duration-200 ${uppercaseBold} text-sm`;
+  const modeButtonClass = `cursor-pointer select-none px-3 sm:px-4 py-1.5 ${textColor} ${hoverBg} rounded-full transition-colors duration-200 ${uppercaseBold} text-xs sm:text-sm`;
 
   return (
-    <div className={`fixed bottom-4 left-4 w-[calc(100%-32px)] sm:w-96 lg:left-1/2 lg:-translate-x-1/2 lg:w-96 ${bgColor} border ${borderColor} ${textColor} rounded-full px-6 py-2 flex items-center justify-between gap-4 backdrop-blur-lg shadow-2xl z-30 font-mono`}>
+    <div
+      data-pomodoro-overlay
+      className={`hidden sm:flex fixed bottom-4 left-1/2 -translate-x-1/2 w-96 ${bgColor} border ${borderColor} ${textColor} rounded-full px-6 py-2 items-center justify-between gap-4 backdrop-blur-lg shadow-2xl z-30 font-mono transition-opacity duration-300 ${
+        showOverlay ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+    >
       <div className="flex items-center justify-start w-auto">
         <div
-          onClick={switchMode}
+          onClick={() => {
+            if (onBreak && isLongBreak) {
+              handleModeSwitch("break");
+            } else if (onBreak && !isLongBreak) {
+              handleModeSwitch("focus");
+            } else {
+              handleModeSwitch("break");
+            }
+          }}
           className={modeButtonClass}
-          aria-label={`Switch to ${onBreak ? "Focus" : "Break"} Mode`}
+          aria-label={`Switch to ${
+            onBreak ? (isLongBreak ? "Break" : "Focus") : "Break"
+          } Mode`}
         >
-          <span>{labelText}</span>
+          <span>{getCurrentMode()}</span>
         </div>
       </div>
 
-      <span className={`font-mono text-xl font-light min-w-[70px] text-center ${textColor}/95`}>
+      <span
+        className={`font-mono text-xl font-light min-w-[70px] text-center ${textColor}/95`}
+      >
         {formatTime(timeLeft)}
       </span>
 
@@ -53,11 +167,7 @@ export default function PomodoroOverlay() {
           className={`p-2 ${textColor} ${hoverBg} rounded-full transition-colors duration-200 flex items-center justify-center`}
           aria-label={isRunning ? "Pause Timer" : "Start Timer"}
         >
-          {isRunning ? (
-            <FaPause size={16} />
-          ) : (
-            <FaPlay size={16} />
-          )}
+          {isRunning ? <FaPause size={16} /> : <FaPlay size={16} />}
         </button>
         <button
           onClick={reset}

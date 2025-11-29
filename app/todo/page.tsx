@@ -14,7 +14,8 @@ export default function TodoPage() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isClient, setIsClient] = useState(false);
-  const { loadFromStorage: loadPomodoroFromStorage, theme } = usePomodoroStore();
+  const { loadFromStorage: loadPomodoroFromStorage, theme } =
+    usePomodoroStore();
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("dark");
 
   const uppercaseBold = "uppercase font-bold";
@@ -27,7 +28,10 @@ export default function TodoPage() {
   useEffect(() => {
     const applyTheme = () => {
       if (theme === "system") {
-        const systemTheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        const systemTheme = window.matchMedia("(prefers-color-scheme: light)")
+          .matches
+          ? "light"
+          : "dark";
         setCurrentTheme(systemTheme);
       } else {
         setCurrentTheme(theme);
@@ -35,10 +39,14 @@ export default function TodoPage() {
     };
 
     applyTheme();
-    window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", applyTheme);
-    
+    window
+      .matchMedia("(prefers-color-scheme: light)")
+      .addEventListener("change", applyTheme);
+
     return () => {
-      window.matchMedia("(prefers-color-scheme: light)").removeEventListener("change", applyTheme);
+      window
+        .matchMedia("(prefers-color-scheme: light)")
+        .removeEventListener("change", applyTheme);
     };
   }, [theme]);
 
@@ -91,17 +99,23 @@ export default function TodoPage() {
   const bgColor = isLight ? "bg-white" : "bg-black";
   const textColor = isLight ? "text-black" : "text-white";
   const borderColor = isLight ? "border-black/50" : "border-white/50";
-  const placeholderColor = isLight ? "placeholder:text-black/40" : "placeholder:text-white/40";
+  const placeholderColor = isLight
+    ? "placeholder:text-black/40"
+    : "placeholder:text-white/40";
   const buttonBg = isLight ? "bg-white/80" : "bg-black/40";
   const invertedBg = isLight ? "bg-black" : "bg-white";
   const invertedText = isLight ? "text-white" : "text-black";
   const taskBg = isLight ? "bg-white/40" : "bg-black/40";
   const taskHoverBg = isLight ? "hover:bg-white/60" : "hover:bg-black/60";
-  const activeButtonBg = isLight ? "bg-black text-white" : "bg-white text-black";
+  const activeButtonBg = isLight
+    ? "bg-black text-white"
+    : "bg-white text-black";
 
   if (!isClient) {
     return (
-      <div className={`min-h-screen w-full relative flex flex-col items-center justify-center ${bgColor} ${textColor}`}>
+      <div
+        className={`min-h-screen w-full relative flex flex-col items-center justify-center ${bgColor} ${textColor}`}
+      >
         <Background />
         <div className="flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono">
           <input
@@ -110,7 +124,7 @@ export default function TodoPage() {
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="ENTER NEW TASK"
-            className={`w-full p-4 text-xl sm:text-2xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300`}
+            className={`w-full p-3 sm:p-4 text-lg sm:text-xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300`}
           />
         </div>
       </div>
@@ -118,37 +132,41 @@ export default function TodoPage() {
   }
 
   return (
-    <div className={`min-h-screen w-full relative flex flex-col items-center justify-center ${bgColor} ${textColor}`}>
+    <div
+      className={`min-h-screen w-full relative flex flex-col items-center ${bgColor} ${textColor}`}
+    >
       <Background />
 
-      <div className={`flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono pt-16 pb-40 sm:py-0`}>
+      <div
+        className={`flex flex-col items-center w-full max-w-xl px-3 sm:px-4 z-20 font-mono pt-16 sm:pt-24 pb-28 sm:pb-40`}
+      >
         <input
           type="text"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ENTER NEW TASK"
-          className={`w-full p-4 text-xl sm:text-2xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300`}
+          className={`w-full p-3 sm:p-4 text-lg sm:text-xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300 mt-8 sm:mt-12`}
         />
 
-        <div className="mt-8 w-full max-w-xl h-[60vh] sm:h-[500px] relative">
+        <div className="mt-10 sm:mt-12 w-full max-w-xl h-[50vh] sm:h-[60vh] relative">
           <div
-            className="w-full h-full overflow-y-scroll space-y-4 pt-2 pb-2 mask-scroll-fade"
+            className="w-full h-full overflow-y-scroll space-y-3 sm:space-y-4 pt-2 pb-2 mask-scroll-fade"
             style={{ scrollbarWidth: "none" }}
           >
             {tasks.map(({ id, title }) => (
               <div
                 key={id}
                 id={`task-${id}`}
-                className={`task-item flex items-center gap-4 p-4 border ${borderColor} rounded-xl ${taskBg} backdrop-blur-md shadow-md ${taskHoverBg} transition-all duration-300`}
+                className={`task-item flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border ${borderColor} rounded-lg sm:rounded-xl ${taskBg} backdrop-blur-md shadow-md ${taskHoverBg} transition-all duration-300`}
               >
                 <input
                   type="checkbox"
                   onChange={() => completeTask(id)}
-                  className={`w-6 h-6 border-2 ${borderColor} rounded-md bg-transparent checked:${invertedBg} checked:border-current transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:${invertedText} checked:after:flex checked:after:items-center checked:after:justify-center`}
+                  className={`w-5 h-5 sm:w-6 sm:h-6 border-2 ${borderColor} rounded-md bg-transparent checked:${invertedBg} checked:border-current transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:${invertedText} checked:after:flex checked:after:items-center checked:after:justify-center checked:after:text-xs sm:checked:after:text-base`}
                 />
                 <span
-                  className={`${uppercaseBold} ${textColor} tracking-wider text-lg sm:text-xl`}
+                  className={`${uppercaseBold} ${textColor} tracking-wider text-base sm:text-lg`}
                 >
                   {title}
                 </span>
@@ -158,7 +176,10 @@ export default function TodoPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-40 font-mono">
+      <div
+        data-nav-buttons
+        className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-40 font-mono"
+      >
         <button
           onClick={navToPomo}
           className={`px-6 py-3 border ${borderColor} ${buttonBg} ${textColor} hover:${invertedBg} hover:${invertedText} rounded-full ${uppercaseBold} transition-colors`}
@@ -166,7 +187,7 @@ export default function TodoPage() {
           POMODORO
         </button>
         <button
-          className={`px-6 py-3 border ${borderColor} ${activeButtonBg} rounded-full ${uppercaseBold} transition-colors shadow-xl`}
+          className={`px-6 py-3 border ${borderColor} ${activeButtonBg} rounded-full ${uppercaseBold} transition-colors`}
         >
           TODO
         </button>
