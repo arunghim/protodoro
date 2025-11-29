@@ -7,10 +7,14 @@ interface PomodoroState {
   onBreak: boolean;
   timeLeft: number;
   isRunning: boolean;
+  background: string;
+  theme: "light" | "dark" | "system";
   setWorkDuration: (v: number) => void;
   setBreakDuration: (v: number) => void;
   setTimeLeft: (v: number) => void;
   setOnBreak: (v: boolean) => void;
+  setBackground: (v: string) => void;
+  setTheme: (v: "light" | "dark" | "system") => void;
   toggleRunning: () => void;
   switchMode: () => void;
   reset: () => void;
@@ -26,11 +30,15 @@ export const usePomodoroStore = create<PomodoroState>()(
       onBreak: false,
       timeLeft: 25 * 60,
       isRunning: false,
+      background: "DOTS",
+      theme: "system",
 
       setWorkDuration: (v) => set({ workDuration: v }),
       setBreakDuration: (v) => set({ breakDuration: v }),
       setTimeLeft: (v) => set({ timeLeft: v }),
       setOnBreak: (v) => set({ onBreak: v }),
+      setBackground: (v) => set({ background: v }),
+      setTheme: (v) => set({ theme: v }),
 
       toggleRunning: () => set((s) => ({ isRunning: !s.isRunning })),
       switchMode: () => {

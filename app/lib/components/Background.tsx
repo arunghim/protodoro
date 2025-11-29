@@ -1,44 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import PixelBlast from "./PixelBlast";
+import { usePomodoroStore } from "../store/usePomodoroStore";
 
 export default function Background() {
-  const [isMobile, setIsMobile] = useState(false);
+  const { background } = usePomodoroStore();
 
-  useEffect(() => {
-    const checkMobile = () =>
-      setIsMobile(
-        window.matchMedia("(max-width: 768px)").matches ||
-          "ontouchstart" in window
-      );
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const getBackgroundStyle = () => {
+    switch (background) {
+      case "DOTS":
+        return { backgroundImage: 'url("/backgrounds/dots.png")' };
+      case "LINES":
+        return { backgroundImage: 'url("/backgrounds/lines.png")' };
+      case "GRID":
+        return { backgroundImage: 'url("/backgrounds/grid.png")' };
+      case "WAVES":
+        return { backgroundImage: 'url("/backgrounds/waves.png")' };
+      case "SOLID":
+        return { backgroundColor: '#1a1a1a' };
+      case "GRADIENT":
+        return { 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+        };
+      default:
+        return { backgroundImage: 'url("/backgrounds/dots.png")' };
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-0 w-full h-[100dvh] pointer-events-auto">
-      <PixelBlast
-        variant="circle"
-        pixelSize={1.5}
-        color="#E5E5E5"
-        patternScale={5}
-        patternDensity={0.75}
-        pixelSizeJitter={0.5}
-        enableRipples={!isMobile}
-        rippleSpeed={0.15}
-        rippleThickness={0.125}
-        rippleIntensityScale={0.125}
-        liquid={!isMobile}
-        liquidStrength={0.125}
-        liquidRadius={0.125}
-        liquidWobbleSpeed={0.25}
-        speed={0.25}
-        edgeFade={0.25}
-        transparent={false}
-        style={{ width: "100%", height: "100%" }}
+    <div className="fixed inset-0 z-0 w-full h-[100dvh] pointer-events-auto overflow-hidden">
+      <div 
+        className="w-full h-full bg-cover bg-center bg-no-repeat transition-all duration-500"
+        style={getBackgroundStyle()}
       />
     </div>
   );

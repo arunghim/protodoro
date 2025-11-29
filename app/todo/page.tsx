@@ -12,12 +12,35 @@ import { usePomodoroStore } from "../lib/store/usePomodoroStore";
 export default function TodoPage() {
   const router = useRouter();
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [tasks, setTasks] = useState<Task[]>(
-    () => loadFromStorage<Task[]>("tasks") || []
-  );
-  const { loadFromStorage: loadPomodoroFromStorage } = usePomodoroStore();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isClient, setIsClient] = useState(false);
+  const { loadFromStorage: loadPomodoroFromStorage, theme } = usePomodoroStore();
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("dark");
 
   const uppercaseBold = "uppercase font-bold";
+
+  useEffect(() => {
+    setIsClient(true);
+    setTasks(loadFromStorage<Task[]>("tasks") || []);
+  }, []);
+
+  useEffect(() => {
+    const applyTheme = () => {
+      if (theme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        setCurrentTheme(systemTheme);
+      } else {
+        setCurrentTheme(theme);
+      }
+    };
+
+    applyTheme();
+    window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", applyTheme);
+    
+    return () => {
+      window.matchMedia("(prefers-color-scheme: light)").removeEventListener("change", applyTheme);
+    };
+  }, [theme]);
 
   useEffect(() => {
     loadPomodoroFromStorage();
@@ -32,8 +55,10 @@ export default function TodoPage() {
   }, []);
 
   useEffect(() => {
-    saveToStorage("tasks", tasks);
-  }, [tasks]);
+    if (isClient) {
+      saveToStorage("tasks", tasks);
+    }
+  }, [tasks, isClient]);
 
   const addTask = (title: string) => {
     if (!title.trim()) return;
@@ -62,18 +87,48 @@ export default function TodoPage() {
     e.key === "Enter" && addTask(newTaskTitle);
   const navToPomo = () => router.push("/");
 
+  const isLight = currentTheme === "light";
+  const bgColor = isLight ? "bg-white" : "bg-black";
+  const textColor = isLight ? "text-black" : "text-white";
+  const borderColor = isLight ? "border-black/50" : "border-white/50";
+  const placeholderColor = isLight ? "placeholder:text-black/40" : "placeholder:text-white/40";
+  const buttonBg = isLight ? "bg-white/80" : "bg-black/40";
+  const invertedBg = isLight ? "bg-black" : "bg-white";
+  const invertedText = isLight ? "text-white" : "text-black";
+  const taskBg = isLight ? "bg-white/40" : "bg-black/40";
+  const taskHoverBg = isLight ? "hover:bg-white/60" : "hover:bg-black/60";
+  const activeButtonBg = isLight ? "bg-black text-white" : "bg-white text-black";
+
+  if (!isClient) {
+    return (
+      <div className={`min-h-screen w-full relative flex flex-col items-center justify-center ${bgColor} ${textColor}`}>
+        <Background />
+        <div className="flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono">
+          <input
+            type="text"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="ENTER NEW TASK"
+            className={`w-full p-4 text-xl sm:text-2xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300`}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen w-full relative flex flex-col items-center justify-center bg-black text-white">
+    <div className={`min-h-screen w-full relative flex flex-col items-center justify-center ${bgColor} ${textColor}`}>
       <Background />
 
-      <div className="flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono pt-16 pb-40 sm:py-0">
+      <div className={`flex flex-col items-center w-full max-w-xl px-4 z-20 font-mono pt-16 pb-40 sm:py-0`}>
         <input
           type="text"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ENTER NEW TASK"
-          className="w-full p-4 text-xl sm:text-2xl border-b-2 border-white/50 uppercase font-extrabold bg-transparent text-white placeholder:text-white/40 focus:outline-none focus:border-white transition-all duration-300"
+          className={`w-full p-4 text-xl sm:text-2xl border-b-2 ${borderColor} ${uppercaseBold} bg-transparent ${textColor} ${placeholderColor} focus:outline-none focus:border-current transition-all duration-300`}
         />
 
         <div className="mt-8 w-full max-w-xl h-[60vh] sm:h-[500px] relative">
@@ -85,15 +140,15 @@ export default function TodoPage() {
               <div
                 key={id}
                 id={`task-${id}`}
-                className="task-item flex items-center gap-4 p-4 border border-white/20 rounded-xl bg-black/40 backdrop-blur-md shadow-md hover:bg-black/60 transition-all duration-300"
+                className={`task-item flex items-center gap-4 p-4 border ${borderColor} rounded-xl ${taskBg} backdrop-blur-md shadow-md ${taskHoverBg} transition-all duration-300`}
               >
                 <input
                   type="checkbox"
                   onChange={() => completeTask(id)}
-                  className="w-6 h-6 border-2 border-white/50 rounded-md bg-transparent checked:bg-white checked:border-white transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:text-black checked:after:flex checked:after:items-center checked:after:justify-center"
+                  className={`w-6 h-6 border-2 ${borderColor} rounded-md bg-transparent checked:${invertedBg} checked:border-current transition-colors cursor-pointer appearance-none checked:after:content-['✔'] checked:after:${invertedText} checked:after:flex checked:after:items-center checked:after:justify-center`}
                 />
                 <span
-                  className={`${uppercaseBold} text-white tracking-wider text-lg sm:text-xl`}
+                  className={`${uppercaseBold} ${textColor} tracking-wider text-lg sm:text-xl`}
                 >
                   {title}
                 </span>
@@ -106,12 +161,12 @@ export default function TodoPage() {
       <div className="fixed bottom-4 right-4 flex flex-col sm:flex-row gap-2 z-40 font-mono">
         <button
           onClick={navToPomo}
-          className={`px-6 py-3 border border-white bg-transparent text-white hover:bg-white hover:text-black rounded-full ${uppercaseBold} transition-colors`}
+          className={`px-6 py-3 border ${borderColor} ${buttonBg} ${textColor} hover:${invertedBg} hover:${invertedText} rounded-full ${uppercaseBold} transition-colors`}
         >
           POMODORO
         </button>
         <button
-          className={`px-6 py-3 border border-white/80 bg-white text-black rounded-full ${uppercaseBold} transition-colors shadow-xl`}
+          className={`px-6 py-3 border ${borderColor} ${activeButtonBg} rounded-full ${uppercaseBold} transition-colors shadow-xl`}
         >
           TODO
         </button>
