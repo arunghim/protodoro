@@ -43,7 +43,7 @@ export const usePomodoroStore = create<PomodoroState>()(
       isLongBreak: false,
       timeLeft: 25 * 60,
       isRunning: false,
-      background: "DOTS",
+      background: "SOLID",
       theme: "dark",
       breakCount: 0,
       alarmSound: "bell",

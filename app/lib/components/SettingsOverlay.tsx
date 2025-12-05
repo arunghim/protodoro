@@ -110,7 +110,6 @@ export default function SettingsOverlay({
     "WAVES",
     "SOLID",
     "GRADIENT",
-    "VIDEO",
   ];
 
   const themeOptions = ["LIGHT", "DARK", "SYSTEM"];
