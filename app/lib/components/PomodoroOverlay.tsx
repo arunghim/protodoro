@@ -10,8 +10,9 @@ export default function PomodoroOverlay() {
     onBreak,
     isLongBreak,
     isRunning,
+    isTransitioning,
     toggleRunning,
-    switchMode,
+    switchToFocus,
     switchToBreak,
     switchToLongBreak,
     reset,
@@ -91,7 +92,7 @@ export default function PomodoroOverlay() {
     }
 
     if (mode === "focus") {
-      switchMode();
+      switchToFocus();
     } else if (mode === "break") {
       switchToBreak();
     } else if (mode === "longBreak") {
@@ -102,6 +103,7 @@ export default function PomodoroOverlay() {
   if (timeLeft === undefined) return null;
 
   const formatTime = (s: number) => {
+    if (s < 0) return "--:--";
     const m = Math.floor(s / 60)
       .toString()
       .padStart(2, "0");
@@ -156,9 +158,11 @@ export default function PomodoroOverlay() {
       </div>
 
       <span
-        className={`font-mono text-xl font-light min-w-[70px] text-center ${textColor}/95`}
+        className={`font-mono text-xl font-light min-w-[70px] text-center ${textColor}/95 ${
+          isTransitioning ? "animate-pulse" : ""
+        }`}
       >
-        {formatTime(timeLeft)}
+        {formatTime(isTransitioning ? -1 : timeLeft)}
       </span>
 
       <div className="flex items-center gap-2 w-auto justify-end">

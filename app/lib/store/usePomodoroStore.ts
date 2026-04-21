@@ -9,6 +9,8 @@ interface PomodoroState {
   isLongBreak: boolean;
   timeLeft: number;
   isRunning: boolean;
+  isTransitioning: boolean;
+  transitionTimeLeft: number;
   background: string;
   theme: "light" | "dark" | "system";
   breakCount: number;
@@ -24,6 +26,7 @@ interface PomodoroState {
   setAlarmSound: (v: string) => void;
   toggleRunning: () => void;
   switchMode: () => void;
+  switchToFocus: () => void;
   switchToBreak: () => void;
   switchToLongBreak: () => void;
   reset: () => void;
@@ -43,6 +46,8 @@ export const usePomodoroStore = create<PomodoroState>()(
       isLongBreak: false,
       timeLeft: 25 * 60,
       isRunning: false,
+      isTransitioning: false,
+      transitionTimeLeft: 0,
       background: "SOLID",
       theme: "dark",
       breakCount: 0,
@@ -60,6 +65,17 @@ export const usePomodoroStore = create<PomodoroState>()(
 
       toggleRunning: () => set((s) => ({ isRunning: !s.isRunning })),
 
+      switchToFocus: () => {
+        const { workDuration } = get();
+        set({
+          onBreak: false,
+          isLongBreak: false,
+          timeLeft: workDuration,
+          isRunning: false,
+          isTransitioning: false,
+        });
+      },
+
       switchMode: () => {
         const { onBreak, workDuration, breakDuration, isLongBreak } = get();
         const next = !onBreak;
@@ -68,6 +84,7 @@ export const usePomodoroStore = create<PomodoroState>()(
           isLongBreak: false,
           timeLeft: next ? breakDuration : workDuration,
           isRunning: false,
+          isTransitioning: false,
         });
       },
 
@@ -78,6 +95,7 @@ export const usePomodoroStore = create<PomodoroState>()(
           isLongBreak: false,
           timeLeft: breakDuration,
           isRunning: false,
+          isTransitioning: false,
         });
       },
 
@@ -89,6 +107,7 @@ export const usePomodoroStore = create<PomodoroState>()(
           timeLeft: longBreakDuration,
           breakCount: 0,
           isRunning: false,
+          isTransitioning: false,
         });
       },
 
@@ -107,6 +126,7 @@ export const usePomodoroStore = create<PomodoroState>()(
               : breakDuration
             : workDuration,
           isRunning: false,
+          isTransitioning: false,
         });
       },
 
@@ -114,8 +134,17 @@ export const usePomodoroStore = create<PomodoroState>()(
         const state = get();
         if (!state.isRunning) return;
 
-        if (state.timeLeft > 0) {
+        if (state.isTransitioning) {
+          if (state.transitionTimeLeft > 0) {
+            set({ transitionTimeLeft: state.transitionTimeLeft - 1 });
+          } else {
+            get().advanceToNextMode();
+          }
+        } else if (state.timeLeft > 0) {
           set({ timeLeft: state.timeLeft - 1 });
+        } else {
+          get().playAlarmSound();
+          set({ isTransitioning: true, transitionTimeLeft: 5 });
         }
       },
 
@@ -135,6 +164,7 @@ export const usePomodoroStore = create<PomodoroState>()(
         }
 
         set({
+          isTransitioning: false,
           onBreak: nextBreak,
           isLongBreak: nextIsLongBreak,
           breakCount: nextBreakCount,
@@ -151,7 +181,7 @@ export const usePomodoroStore = create<PomodoroState>()(
         const audio = new Audio(`/sounds/${alarmSound}.mp3`);
         audio.play().catch(() => {
           const beep = new Audio(
-            "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA=="
+            "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
           );
           beep.play();
         });
@@ -165,6 +195,20 @@ export const usePomodoroStore = create<PomodoroState>()(
         }
       },
     }),
-    { name: "pomodoro-storage" }
-  )
+    {
+      name: "pomodoro-storage",
+      partialize: (state) => ({
+        workDuration: state.workDuration,
+        breakDuration: state.breakDuration,
+        longBreakDuration: state.longBreakDuration,
+        onBreak: state.onBreak,
+        isLongBreak: state.isLongBreak,
+        timeLeft: state.timeLeft,
+        background: state.background,
+        theme: state.theme,
+        breakCount: state.breakCount,
+        alarmSound: state.alarmSound,
+      }),
+    },
+  ),
 );

@@ -8,16 +8,16 @@ export default function Background() {
 
   const imageUrl = useMemo(() => {
     switch (background) {
-      case "DOTS":
-        return "";
-      case "LINES":
-        return "";
-      case "GRID":
-        return "";
-      case "WAVES":
-        return "";
-      case "GRADIENT":
-        return "";
+      case "MOUNTAINS":
+        return "/backgrounds/mountains.jpg";
+      case "FOREST":
+        return "/backgrounds/forest.jpg";
+      case "STEPS":
+        return "/backgrounds/steps.jpg";
+      case "SHOP":
+        return "/backgrounds/shop.jpg";
+      case "LIGHTS":
+        return "/backgrounds/lights.jpg";
       default:
         return "";
     }

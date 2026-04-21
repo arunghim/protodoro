@@ -21,21 +21,18 @@ export default function PomodoroPage() {
     onBreak,
     isLongBreak,
     isRunning,
+    isTransitioning,
+    transitionTimeLeft,
     toggleRunning,
-    switchMode,
+    switchToFocus,
     switchToLongBreak,
     switchToBreak,
     reset,
     tick,
     theme,
-    alarmSound,
-    playAlarmSound,
-    advanceToNextMode,
   } = usePomodoroStore();
   const [showSettings, setShowSettings] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("dark");
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionTimeLeft, setTransitionTimeLeft] = useState(0);
   const uppercaseBold = "uppercase font-bold";
 
   useEffect(() => {
@@ -64,54 +61,17 @@ export default function PomodoroPage() {
   }, [theme]);
 
   useEffect(() => {
-    const handleTick = () => {
-      if (isTransitioning) {
-        if (transitionTimeLeft > 0) {
-          setTransitionTimeLeft(transitionTimeLeft - 1);
-        } else {
-          setIsTransitioning(false);
-          advanceToNextMode();
-        }
-      } else if (isRunning && timeLeft === 0 && !isTransitioning) {
-        setIsTransitioning(true);
-        setTransitionTimeLeft(5);
-        playAlarmSound();
-
-        const soundInterval = setInterval(() => {
-          playAlarmSound();
-        }, 1000);
-
-        setTimeout(() => {
-          clearInterval(soundInterval);
-        }, 5000);
-      } else {
-        tick();
-      }
-    };
-
-    const interval = setInterval(handleTick, 1000);
+    const interval = setInterval(() => tick(), 1000);
     return () => clearInterval(interval);
-  }, [
-    tick,
-    isRunning,
-    timeLeft,
-    isTransitioning,
-    transitionTimeLeft,
-    playAlarmSound,
-    advanceToNextMode,
-  ]);
+  }, [tick]);
 
   const handleModeSwitch = (mode: "focus" | "break" | "longBreak") => {
     if (isRunning) {
       toggleRunning();
     }
 
-    if (isTransitioning) {
-      setIsTransitioning(false);
-    }
-
     if (mode === "focus") {
-      switchMode();
+      switchToFocus();
     } else if (mode === "break") {
       switchToBreak();
     } else if (mode === "longBreak") {
@@ -120,9 +80,6 @@ export default function PomodoroPage() {
   };
 
   const handleReset = () => {
-    if (isTransitioning) {
-      setIsTransitioning(false);
-    }
     reset();
   };
 

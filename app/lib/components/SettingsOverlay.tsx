@@ -40,21 +40,21 @@ export default function SettingsOverlay({
 
   const handleDurationChange = (
     mode: "work" | "break" | "longBreak",
-    change: number
+    change: number,
   ) => {
     const currentDuration =
       mode === "work"
         ? workDuration
         : mode === "break"
-        ? breakDuration
-        : longBreakDuration;
+          ? breakDuration
+          : longBreakDuration;
 
     const setDuration =
       mode === "work"
         ? setWorkDuration
         : mode === "break"
-        ? setBreakDuration
-        : setLongBreakDuration;
+          ? setBreakDuration
+          : setLongBreakDuration;
 
     const isActiveMode =
       (mode === "work" && !onBreak) ||
@@ -78,7 +78,7 @@ export default function SettingsOverlay({
     const audio = new Audio(`/sounds/${soundId}.mp3`);
     audio.play().catch(() => {
       const beep = new Audio(
-        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA=="
+        "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==",
       );
       beep.play();
     });
@@ -104,12 +104,12 @@ export default function SettingsOverlay({
   const controlButtonClass = `p-1.5 ${textColor}/80 hover:${textColor} ${hoverBg} rounded transition-colors pointer-events-auto`;
 
   const backgroundOptions = [
-    "DOTS",
-    "LINES",
-    "GRID",
-    "WAVES",
+    "MOUNTAINS",
+    "FOREST",
+    "STEPS",
+    "SHOP",
+    "LIGHTS",
     "SOLID",
-    "GRADIENT",
   ];
 
   const themeOptions = ["LIGHT", "DARK", "SYSTEM"];
@@ -309,7 +309,10 @@ export default function SettingsOverlay({
                     }`}
                     onClick={() =>
                       setTheme(
-                        themeOption.toLowerCase() as "light" | "dark" | "system"
+                        themeOption.toLowerCase() as
+                          | "light"
+                          | "dark"
+                          | "system",
                       )
                     }
                   >
